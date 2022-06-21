@@ -1,11 +1,13 @@
 Source: libbpf
 Priority: optional
-Maintainer: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Maintainer: Pexip AS <packaging@pexip.com>
+XSBC-Pexip-Original-Maintainer: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Build-Depends: debhelper-compat (= 13), libelf-dev, zlib1g-dev, pkg-config
 Standards-Version: 4.5.1
 Section: libs
 Vcs-Browser: https://github.com/sudipm-mukherjee/libbpf
 Vcs-Git: https://github.com/sudipm-mukherjee/libbpf.git
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ bullseye
 
 Package: libbpf-dev
 Section: libdevel
