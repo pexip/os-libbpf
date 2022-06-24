@@ -1,3 +1,9 @@
+libbpf (0.3-2pexip2) pexip-bullseye; urgency=medium
+
+  * Main bullseye build
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Fri, 24 Jun 2022 13:55:43 +0100
+
 libbpf (0.3-2pexip1) pexip; urgency=medium
 
   * Prepare Pexip packaging
