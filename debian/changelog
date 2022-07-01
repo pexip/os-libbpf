@@ -1,3 +1,9 @@
+libbpf (0.3-2pexip3) pexip-bullseye; urgency=medium
+
+  * Rebuild for override changes
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Fri, 01 Jul 2022 10:10:58 +0100
+
 libbpf (0.3-2pexip2) pexip-bullseye; urgency=medium
 
   * Main bullseye build
