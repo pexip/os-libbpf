@@ -1,3 +1,87 @@
+libbpf (1.1.0-1) unstable; urgency=medium
+
+  * New upstream version 1.1.0
+    - Update symbols.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Fri, 06 Jan 2023 20:31:46 +0000
+
+libbpf (1.0.1-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Sun, 06 Nov 2022 00:00:07 +0000
+
+libbpf (1.0.1-1) experimental; urgency=medium
+
+  * New upstream version 1.0.1
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Sat, 15 Oct 2022 23:57:54 +0100
+
+libbpf (1.0.0-1) experimental; urgency=medium
+
+  * New upstream version 1.0.0
+    - Update SONAME and symbols.
+  * Update Standards-Version to 4.6.1.0
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Fri, 26 Aug 2022 11:26:39 +0100
+
+libbpf (0.8.0-1) unstable; urgency=medium
+
+  * New upstream version 0.8.0
+    - Update symbols.
+    - Update copyright.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Sun, 05 Jun 2022 16:27:21 +0100
+
+libbpf (0.7.0-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Sat, 26 Feb 2022 23:32:44 +0000
+
+libbpf (0.7.0-1) experimental; urgency=medium
+
+  * New upstream version 0.7.0
+   - Update symbols.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Fri, 18 Feb 2022 17:31:20 +0000
+
+libbpf (0.6.1-1) experimental; urgency=medium
+
+  * New upstream version 0.6.1
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Tue, 21 Dec 2021 18:03:42 +0000
+
+libbpf (0.6.0-1) experimental; urgency=medium
+
+  * New upstream version 0.6.0
+    - Update symbols.
+    - Update copyright.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Sat, 04 Dec 2021 23:42:33 +0000
+
+libbpf (0.5.0-1) unstable; urgency=medium
+
+  * New upstream version 0.5.0
+    - Update copyright.
+    - Update symbols.
+  * Update Standards-Version to 4.6.0.1
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Fri, 17 Sep 2021 22:32:53 +0100
+
+libbpf (0.4.0-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Tue, 17 Aug 2021 22:12:29 +0100
+
+libbpf (0.4.0-1) experimental; urgency=medium
+
+  * New upstream version 0.4.0
+    - Update symbols.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Tue, 25 May 2021 22:05:09 +0100
+
 libbpf (0.3-2pexip4) pexip-bullseye; urgency=medium
 
   * Bullseye rebuild for ARM64 inclusion
