@@ -1,3 +1,9 @@
+libbpf (1.1.0-1pexip1) pexip-bookworm; urgency=medium
+
+  * Initial bookworm build
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 16 Nov 2023 10:05:35 +0000
+
 libbpf (1.1.0-1) unstable; urgency=medium
 
   * New upstream version 1.1.0
