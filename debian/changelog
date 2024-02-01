@@ -1,3 +1,9 @@
+libbpf (1.1.0-1+pexip24u4) pexip-bookworm; urgency=medium
+
+  * New versioning scheme
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 01 Feb 2024 16:03:53 +0000
+
 libbpf (1.1.0-1pexip3) pexip-bookworm; urgency=medium
 
   * Rebuild for override changes
