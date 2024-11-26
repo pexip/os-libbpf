@@ -1,0 +1,3 @@
+Tests: runtest.sh
+Depends: @, gcc
+Restrictions: superficial
