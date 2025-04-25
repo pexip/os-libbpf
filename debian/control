@@ -2,11 +2,11 @@ Source: libbpf
 Priority: optional
 Maintainer: Pexip AS <packaging@pexip.com>
 XSBC-Pexip-Original-Maintainer: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Build-Depends: debhelper-compat (= 13), libelf-dev, zlib1g-dev, pkg-config
-Standards-Version: 4.6.1.0
+Build-Depends: debhelper-compat (= 13), libelf-dev, zlib1g-dev, pkgconf
+Standards-Version: 4.7.0
 Section: libs
-Vcs-Browser: https://github.com/sudipm-mukherjee/libbpf
-Vcs-Git: https://github.com/sudipm-mukherjee/libbpf.git
+Vcs-Browser: https://salsa.debian.org/sudip/libbpf
+Vcs-Git: https://salsa.debian.org/sudip/libbpf.git
 XS-Pexip-Upstream: http://deb.debian.org/debian/ trixie
 
 Package: libbpf-dev
