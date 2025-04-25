@@ -7,7 +7,7 @@ Standards-Version: 4.6.1.0
 Section: libs
 Vcs-Browser: https://github.com/sudipm-mukherjee/libbpf
 Vcs-Git: https://github.com/sudipm-mukherjee/libbpf.git
-XS-Pexip-Upstream: http://deb.debian.org/debian/ bookworm
+XS-Pexip-Upstream: http://deb.debian.org/debian/ trixie
 
 Package: libbpf-dev
 Section: libdevel
