@@ -1,3 +1,10 @@
+libbpf (1.5.0-3) unstable; urgency=medium
+
+  * CVE-2025-29481:
+    - Fix buffer overflow in bpf_object__init_prog. (Closes: #1102672)
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Fri, 25 Apr 2025 19:49:15 +0100
+
 libbpf (1.5.0-2) unstable; urgency=medium
 
   * Add basic autopkgtest.
