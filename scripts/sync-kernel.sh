@@ -43,8 +43,10 @@ PATH_MAP=(									\
 	[tools/include/uapi/linux/bpf.h]=include/uapi/linux/bpf.h		\
 	[tools/include/uapi/linux/btf.h]=include/uapi/linux/btf.h		\
 	[tools/include/uapi/linux/fcntl.h]=include/uapi/linux/fcntl.h		\
+	[tools/include/uapi/linux/openat2.h]=include/uapi/linux/openat2.h	\
 	[tools/include/uapi/linux/if_link.h]=include/uapi/linux/if_link.h	\
 	[tools/include/uapi/linux/if_xdp.h]=include/uapi/linux/if_xdp.h		\
+	[tools/include/uapi/linux/netdev.h]=include/uapi/linux/netdev.h		\
 	[tools/include/uapi/linux/netlink.h]=include/uapi/linux/netlink.h	\
 	[tools/include/uapi/linux/pkt_cls.h]=include/uapi/linux/pkt_cls.h	\
 	[tools/include/uapi/linux/pkt_sched.h]=include/uapi/linux/pkt_sched.h	\
@@ -260,7 +262,7 @@ if ((${COMMIT_CNT} <= 0)); then
 fi
 
 # Exclude baseline commit and generate nice cover letter with summary
-git format-patch ${SQUASH_BASE_TAG}..${SQUASH_TIP_TAG} --cover-letter -o ${TMP_DIR}/patches
+git format-patch --no-signature ${SQUASH_BASE_TAG}..${SQUASH_TIP_TAG} --cover-letter -o ${TMP_DIR}/patches
 
 # Now is time to re-apply libbpf-related linux patches to libbpf repo
 cd_to ${LIBBPF_REPO}
@@ -291,6 +293,22 @@ if ((${helpers_changes} == 1)); then
 
 Latest changes to BPF helper definitions.
 " -- src/bpf_helper_defs.h
+fi
+
+echo "Regenerating .mailmap..."
+cd_to "${LINUX_REPO}"
+git checkout "${TIP_SYM_REF}"
+cd_to "${LIBBPF_REPO}"
+"${LIBBPF_REPO}"/scripts/mailmap-update.sh "${LIBBPF_REPO}" "${LINUX_REPO}"
+# if anything changed, commit it
+mailmap_changes=$(git status --porcelain .mailmap | wc -l)
+if ((${mailmap_changes} == 1)); then
+	git add .mailmap
+	git commit -s -m "sync: update .mailmap
+
+Update .mailmap based on libbpf's list of contributors and on the latest
+.mailmap version in the upstream repository.
+" -- .mailmap
 fi
 
 # Use generated cover-letter as a template for "sync commit" with
