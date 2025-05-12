@@ -7214,15 +7214,18 @@ static int bpf_object_init_progs(struct bpf_object *obj, const struct bpf_object
 }
 
 static struct bpf_object *bpf_object_open(const char *path, const void *obj_buf, size_t obj_buf_sz,
+					  const char *obj_name,
 					  const struct bpf_object_open_opts *opts)
 {
-	const char *obj_name, *kconfig, *btf_tmp_path;
+	const char *kconfig, *btf_tmp_path;
 	struct bpf_object *obj;
-	char tmp_name[64];
 	int err;
 	char *log_buf;
 	size_t log_size;
 	__u32 log_level;
+
+	if (obj_buf && !obj_name)
+		return ERR_PTR(-EINVAL);
 
 	if (elf_version(EV_CURRENT) == EV_NONE) {
 		pr_warn("failed to init libelf for %s\n",
@@ -7233,16 +7236,12 @@ static struct bpf_object *bpf_object_open(const char *path, const void *obj_buf,
 	if (!OPTS_VALID(opts, bpf_object_open_opts))
 		return ERR_PTR(-EINVAL);
 
-	obj_name = OPTS_GET(opts, object_name, NULL);
+	obj_name = OPTS_GET(opts, object_name, NULL) ?: obj_name;
 	if (obj_buf) {
-		if (!obj_name) {
-			snprintf(tmp_name, sizeof(tmp_name), "%lx-%lx",
-				 (unsigned long)obj_buf,
-				 (unsigned long)obj_buf_sz);
-			obj_name = tmp_name;
-		}
 		path = obj_name;
 		pr_debug("loading object '%s' from buffer\n", obj_name);
+	} else {
+		pr_debug("loading object from %s\n", path);
 	}
 
 	log_buf = OPTS_GET(opts, kernel_log_buf, NULL);
@@ -7308,9 +7307,7 @@ bpf_object__open_file(const char *path, const struct bpf_object_open_opts *opts)
 	if (!path)
 		return libbpf_err_ptr(-EINVAL);
 
-	pr_debug("loading %s\n", path);
-
-	return libbpf_ptr(bpf_object_open(path, NULL, 0, opts));
+	return libbpf_ptr(bpf_object_open(path, NULL, 0, NULL, opts));
 }
 
 struct bpf_object *bpf_object__open(const char *path)
@@ -7322,10 +7319,15 @@ struct bpf_object *
 bpf_object__open_mem(const void *obj_buf, size_t obj_buf_sz,
 		     const struct bpf_object_open_opts *opts)
 {
+	char tmp_name[64];
+
 	if (!obj_buf || obj_buf_sz == 0)
 		return libbpf_err_ptr(-EINVAL);
 
-	return libbpf_ptr(bpf_object_open(NULL, obj_buf, obj_buf_sz, opts));
+	/* create a (quite useless) default "name" for this memory buffer object */
+	snprintf(tmp_name, sizeof(tmp_name), "%lx-%zx", (unsigned long)obj_buf, obj_buf_sz);
+
+	return libbpf_ptr(bpf_object_open(NULL, obj_buf, obj_buf_sz, tmp_name, opts));
 }
 
 static int bpf_object_unload(struct bpf_object *obj)
@@ -12213,14 +12215,15 @@ int libbpf_num_possible_cpus(void)
 
 static int populate_skeleton_maps(const struct bpf_object *obj,
 				  struct bpf_map_skeleton *maps,
-				  size_t map_cnt)
+				  size_t map_cnt, size_t map_skel_sz)
 {
 	int i;
 
 	for (i = 0; i < map_cnt; i++) {
-		struct bpf_map **map = maps[i].map;
-		const char *name = maps[i].name;
-		void **mmaped = maps[i].mmaped;
+		struct bpf_map_skeleton *map_skel = (void *)maps + i * map_skel_sz;
+		struct bpf_map **map = map_skel->map;
+		const char *name = map_skel->name;
+		void **mmaped = map_skel->mmaped;
 
 		*map = bpf_object__find_map_by_name(obj, name);
 		if (!*map) {
@@ -12237,13 +12240,14 @@ static int populate_skeleton_maps(const struct bpf_object *obj,
 
 static int populate_skeleton_progs(const struct bpf_object *obj,
 				   struct bpf_prog_skeleton *progs,
-				   size_t prog_cnt)
+				   size_t prog_cnt, size_t prog_skel_sz)
 {
 	int i;
 
 	for (i = 0; i < prog_cnt; i++) {
-		struct bpf_program **prog = progs[i].prog;
-		const char *name = progs[i].name;
+		struct bpf_prog_skeleton *prog_skel = (void *)progs + i * prog_skel_sz;
+		struct bpf_program **prog = prog_skel->prog;
+		const char *name = prog_skel->name;
 
 		*prog = bpf_object__find_program_by_name(obj, name);
 		if (!*prog) {
@@ -12257,40 +12261,24 @@ static int populate_skeleton_progs(const struct bpf_object *obj,
 int bpf_object__open_skeleton(struct bpf_object_skeleton *s,
 			      const struct bpf_object_open_opts *opts)
 {
-	DECLARE_LIBBPF_OPTS(bpf_object_open_opts, skel_opts,
-		.object_name = s->name,
-	);
 	struct bpf_object *obj;
 	int err;
 
-	/* Attempt to preserve opts->object_name, unless overriden by user
-	 * explicitly. Overwriting object name for skeletons is discouraged,
-	 * as it breaks global data maps, because they contain object name
-	 * prefix as their own map name prefix. When skeleton is generated,
-	 * bpftool is making an assumption that this name will stay the same.
-	 */
-	if (opts) {
-		memcpy(&skel_opts, opts, sizeof(*opts));
-		if (!opts->object_name)
-			skel_opts.object_name = s->name;
-	}
-
-	obj = bpf_object__open_mem(s->data, s->data_sz, &skel_opts);
-	err = libbpf_get_error(obj);
-	if (err) {
-		pr_warn("failed to initialize skeleton BPF object '%s': %d\n",
-			s->name, err);
+	obj = bpf_object_open(NULL, s->data, s->data_sz, s->name, opts);
+	if (IS_ERR(obj)) {
+		err = PTR_ERR(obj);
+		pr_warn("failed to initialize skeleton BPF object '%s': %d\n", s->name, err);
 		return libbpf_err(err);
 	}
 
 	*s->obj = obj;
-	err = populate_skeleton_maps(obj, s->maps, s->map_cnt);
+	err = populate_skeleton_maps(obj, s->maps, s->map_cnt, s->map_skel_sz);
 	if (err) {
 		pr_warn("failed to populate skeleton maps for '%s': %d\n", s->name, err);
 		return libbpf_err(err);
 	}
 
-	err = populate_skeleton_progs(obj, s->progs, s->prog_cnt);
+	err = populate_skeleton_progs(obj, s->progs, s->prog_cnt, s->prog_skel_sz);
 	if (err) {
 		pr_warn("failed to populate skeleton progs for '%s': %d\n", s->name, err);
 		return libbpf_err(err);
@@ -12320,20 +12308,20 @@ int bpf_object__open_subskeleton(struct bpf_object_subskeleton *s)
 		return libbpf_err(-errno);
 	}
 
-	err = populate_skeleton_maps(s->obj, s->maps, s->map_cnt);
+	err = populate_skeleton_maps(s->obj, s->maps, s->map_cnt, s->map_skel_sz);
 	if (err) {
 		pr_warn("failed to populate subskeleton maps: %d\n", err);
 		return libbpf_err(err);
 	}
 
-	err = populate_skeleton_progs(s->obj, s->progs, s->prog_cnt);
+	err = populate_skeleton_progs(s->obj, s->progs, s->prog_cnt, s->prog_skel_sz);
 	if (err) {
 		pr_warn("failed to populate subskeleton maps: %d\n", err);
 		return libbpf_err(err);
 	}
 
 	for (var_idx = 0; var_idx < s->var_cnt; var_idx++) {
-		var_skel = &s->vars[var_idx];
+		var_skel = (void *)s->vars + var_idx * s->var_skel_sz;
 		map = *var_skel->map;
 		map_type_id = bpf_map__btf_value_type_id(map);
 		map_type = btf__type_by_id(btf, map_type_id);
@@ -12380,10 +12368,11 @@ int bpf_object__load_skeleton(struct bpf_object_skeleton *s)
 	}
 
 	for (i = 0; i < s->map_cnt; i++) {
-		struct bpf_map *map = *s->maps[i].map;
+		struct bpf_map_skeleton *map_skel = (void *)s->maps + i * s->map_skel_sz;
+		struct bpf_map *map = *map_skel->map;
 		size_t mmap_sz = bpf_map_mmap_sz(map);
-		int prot, map_fd = bpf_map__fd(map);
-		void **mmaped = s->maps[i].mmaped;
+		int prot, map_fd = map->fd;
+		void **mmaped = map_skel->mmaped;
 
 		if (!mmaped)
 			continue;
@@ -12427,8 +12416,9 @@ int bpf_object__attach_skeleton(struct bpf_object_skeleton *s)
 	int i, err;
 
 	for (i = 0; i < s->prog_cnt; i++) {
-		struct bpf_program *prog = *s->progs[i].prog;
-		struct bpf_link **link = s->progs[i].link;
+		struct bpf_prog_skeleton *prog_skel = (void *)s->progs + i * s->prog_skel_sz;
+		struct bpf_program *prog = *prog_skel->prog;
+		struct bpf_link **link = prog_skel->link;
 
 		if (!prog->autoload || !prog->autoattach)
 			continue;
@@ -12468,7 +12458,8 @@ void bpf_object__detach_skeleton(struct bpf_object_skeleton *s)
 	int i;
 
 	for (i = 0; i < s->prog_cnt; i++) {
-		struct bpf_link **link = s->progs[i].link;
+		struct bpf_prog_skeleton *prog_skel = (void *)s->progs + i * s->prog_skel_sz;
+		struct bpf_link **link = prog_skel->link;
 
 		bpf_link__destroy(*link);
 		*link = NULL;

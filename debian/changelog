@@ -1,3 +1,13 @@
+libbpf (1.1.2-0+deb12u1) bookworm; urgency=medium
+
+  * New upstream version 1.1.2 (Closes: #1101745)
+    - Upstream changes:
+      - libbpf: fix BPF skeleton forward/backward compat handling.
+      - libbpf: Fix bpf_object__open_skeleton()'s mishandling of options.
+      - libbpf: Ensure new BTF objects inherit input endianness.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Mon, 12 May 2025 19:29:05 +0100
+
 libbpf (1.1.0-1) unstable; urgency=medium
 
   * New upstream version 1.1.0
