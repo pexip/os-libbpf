@@ -1,3 +1,9 @@
+libbpf (1.5.0-3+pexip25u1) pexip-trixie; urgency=medium
+
+  * New upstream release
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Fri, 16 May 2025 09:30:33 +0100
+
 libbpf (1.5.0-3) unstable; urgency=medium
 
   * CVE-2025-29481:
